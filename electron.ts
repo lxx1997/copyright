@@ -1,8 +1,12 @@
+
 // electron-main/index.ts
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
 const path = require('path');
 
 const createWindow = () => {
+
+  // 隐藏顶部菜单
+  Menu.setApplicationMenu(null)
   const win = new BrowserWindow({
     webPreferences: {
       contextIsolation: false,
@@ -10,16 +14,21 @@ const createWindow = () => {
       preload: path.join(__dirname, './preload.ts'),
     },
   });
-
   if (app.isPackaged) {
     win.loadFile(path.join(__dirname, './index.html'));
   } else {
     // Use ['ENV_NAME'] avoid vite:define plugin
     const url = `http://127.0.0.1:5173/`;
     win.loadURL(url);
-
-    // 添加 devtools
-    win.webContents.openDevTools()
+    // 添加快捷键
+    globalShortcut.unregisterAll()
+    globalShortcut.register('ctrl+q', function() {
+      app.quit()
+    })
+    globalShortcut.register('ctrl+shift+i', function() {
+      // 添加 devtools
+      win.webContents.openDevTools()
+    })
   }
 };
 
